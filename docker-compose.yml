@@ -1,0 +1,58 @@
+services:
+  cloud-gaming:
+    build: .
+    image: cloud-gaming
+    network_mode: "host"
+    container_name: cloud-gaming
+    environment:
+      WM_ONLY: "false"
+      SELKIES_START_AFTER_CONNECT: "/apps/garage/Garage42.x86_64"
+      SELKIES_START_AFTER_DISCONNECT: "killall Garage42.x86_64"
+      SELKIES_VIDEO_PACKETLOSS_PERCENT: 20
+      SELKIES_AUDIO_PACKETLOSS_PERCENT: 20
+      DISPLAY: ":33"
+      TZ: "Europe/Berlin"
+      DISPLAY_SIZEW: 1920
+      DISPLAY_SIZEH: 1080
+      DISPLAY_REFRESH: 60
+      DISPLAY_DPI: 96
+      DISPLAY_CDEPTH: 24
+      SELKIES_ENABLE_BASIC_AUTH: false
+      SELKIES_ENCODER: nvh264enc
+      SELKIES_VIDEO_BITRATE: 8000
+      SELKIES_FRAMERATE: 60
+      SELKIES_AUDIO_BITRATE: 192000
+      SELKIES_ENABLE_RESIZE: true
+      SELKIES_TURN_HOST: "relay1.expressturn.com"
+      SELKIES_TURN_PORT: 3478
+      SELKIES_TURN_USERNAME: "efJ7OB93Q8CW0ISQC7"
+      SELKIES_TURN_PASSWORD: "LXw0ELCJRQekDAU9"
+      WINEPREFIX: "/wineprefix"
+      MANGOHUD: 1
+      LANG: "de_DE.UTF-8"
+      LANGUAGE: "de_DE:de"
+      LC_ALL: "de_DE.UTF-8"
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/snd:/dev/snd
+    volumes:
+      - /etc/vulkan/icd.d/nvidia_icd.json:/etc/vulkan/icd.d/nvidia_icd.json
+      - /etc/vulkan/implicit_layer.d/nvidia_layers.json:/etc/vulkan/implicit_layer.d/nvidia_layers.json
+      - /usr/share/glvnd/egl_vendor.d/10_nvidia.json:/usr/share/glvnd/egl_vendor.d/10_nvidia.json
+      - ./godot-cache:/home/ubuntu/.local/share/godot
+      - ./apps:/apps:ro
+      - ./wineprefix:/wineprefix/
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+    security_opt:
+      - seccomp=unconfined
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
